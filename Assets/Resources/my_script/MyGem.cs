@@ -14,6 +14,8 @@ public class MyGem : MonoBehaviour
 
     public List<MyActiveCell> myListPoints = new List<MyActiveCell>();
 
+    public bool myIsAddedListForDelete = false;
+
     public bool MyIsAnimate { get { return myIsAnimate; } }
 
     public MyGemType MyGetType { get {

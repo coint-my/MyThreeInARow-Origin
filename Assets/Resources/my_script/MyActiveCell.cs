@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -110,10 +111,109 @@ public class MyActiveCell : MonoBehaviour, MyMisc.MyISortObjectId, IPointerDownH
         return myCellTop != null;
     }
 
-    public void MyDestroyGem()
+    private void MyRecursionCollectPowersCell(int _index, List<MyActiveCell> _listPowers, 
+        List<MyActiveCell> _listGems, MyMain _main)//to do this
     {
-        MyGem gem = MyGetGem;
-        if (gem)
+        if(_index < _listPowers.Count)
+        {
+            MyPowerGem power = _listPowers[_index].GetComponentInChildren<MyPowerGem>();
+
+            _listGems.AddRange(MyGetTheLineGemForDestroy(_main, _listPowers[_index].MyGetId(), power.myPower));
+            _listPowers.AddRange(MyGetThePowersOfTheGem(_listGems));
+
+            MyRecursionCollectPowersCell(++_index, _listPowers, _listGems, _main);
+        }
+    }
+
+    private void MyDestroyPowerGems(MyMain _main)
+    {
+        MyPowerGem power = GetComponentInChildren<MyPowerGem>();
+        if (power && !MyGetGem.myIsAddedListForDelete)
+        {
+            List<MyActiveCell> listGemForDestroy = new List<MyActiveCell>();
+            List<MyActiveCell> listPowerForDestroy = new List<MyActiveCell>();
+
+            MyGetGem.myIsAddedListForDelete = true;
+            listPowerForDestroy.Add(this);
+            
+            MyRecursionCollectPowersCell(0, listPowerForDestroy, listGemForDestroy, _main);
+
+            for (int ind = 0; ind < listGemForDestroy.Count; ind++)
+                listGemForDestroy[ind].MyDestructGem();
+
+            //print("count gem destroy = " + listGemForDestroy.Count);
+            //print("count gem power = " + listPowerForDestroy.Count);
+        }
+    }
+
+    private List<MyActiveCell> MyGetThePowersOfTheGem(List<MyActiveCell> _list)
+    {
+        List<MyActiveCell> listPowers = new List<MyActiveCell>();
+
+        for (int ind = 0; ind < _list.Count; ind++)
+        {
+            if (_list[ind].MyGetGem.GetComponentInChildren<MyPowerGem>() &&
+                !_list[ind].MyGetGem.myIsAddedListForDelete)
+            {
+                _list[ind].MyGetGem.myIsAddedListForDelete = true;
+                listPowers.Add(_list[ind]);
+            }
+        }
+
+        return listPowers;
+    }
+
+    private List<MyActiveCell> MyGetTheLineGemForDestroy(MyMain _main, int _index, MyTypePower _typePower)
+    {
+        List<MyActiveCell> _list = new List<MyActiveCell>();
+
+        int x = (_index % _main.myWidth);
+        int y = (_index / _main.myHeight);
+
+        if (_typePower == MyTypePower.FOUR_HORIZONTAL)
+        {
+            for (int lineX = 0; lineX < _main.myWidth; lineX++)
+            {
+                if (_main.MyGetCells2D[lineX, y].MyGetActiveCell &&
+                    _main.MyGetCells2D[lineX, y].MyGetActiveCell.MyGetGem &&
+                    !_main.MyGetCells2D[lineX, y].MyGetActiveCell.MyGetGem.myIsAddedListForDelete)
+                {
+                    if (!_main.MyGetCells2D[lineX, y].MyGetActiveCell.MyGetGem.GetComponentInChildren<MyPowerGem>())
+                        _main.MyGetCells2D[lineX, y].MyGetActiveCell.MyGetGem.myIsAddedListForDelete = true;
+                    _list.Add(_main.MyGetCells2D[lineX, y].MyGetActiveCell);
+                }
+            }
+        }
+        else if(_typePower == MyTypePower.FOUR_VERTICAL)
+        {
+            for (int lineY = 0; lineY < _main.myWidth; lineY++)
+            {
+                if (_main.MyGetCells2D[x, lineY].MyGetActiveCell &&
+                    _main.MyGetCells2D[x, lineY].MyGetActiveCell.MyGetGem &&
+                    !_main.MyGetCells2D[x, lineY].MyGetActiveCell.MyGetGem.myIsAddedListForDelete)
+                {
+                    if (!_main.MyGetCells2D[x, lineY].MyGetActiveCell.MyGetGem.GetComponentInChildren<MyPowerGem>())
+                        _main.MyGetCells2D[x, lineY].MyGetActiveCell.MyGetGem.myIsAddedListForDelete = true;
+                    _list.Add(_main.MyGetCells2D[x, lineY].MyGetActiveCell);
+                }
+            }
+        }
+
+        return _list;
+    }
+
+    public void MyDestroyGem(MyMain _main)
+    {
+        if (MyGetGem)
+        {
+            MyDestroyPowerGems(_main);
+            MyDestructGem();
+        }
+    }
+
+    private void MyDestructGem()
+    {
+        if (MyGetGem)
         {
             myIsTestBusy = false;
             myIsMove = false;
@@ -121,7 +221,7 @@ public class MyActiveCell : MonoBehaviour, MyMisc.MyISortObjectId, IPointerDownH
             GameObject goParticle = Instantiate(myParticleDestroy, transform.position, Quaternion.identity);
             goParticle.transform.SetParent(transform.parent, true);
             Destroy(goParticle, 1);
-            Destroy(gem.gameObject);
+            Destroy(MyGetGem.gameObject);
         }
     }
 

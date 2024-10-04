@@ -28,7 +28,7 @@ public struct MyPairTypeSpawn
 
 public class MyMain : MonoBehaviour
 {
-    private readonly int myWidth = 10, myHeight = 10;
+    public readonly int myWidth = 10, myHeight = 10;
     private bool myIsHandle = false;
     private bool myIsOneCallCell = false;
     private List<MyCell> myCells;
@@ -40,6 +40,9 @@ public class MyMain : MonoBehaviour
     private MyPairActiveCell myBufferPairActiveCell;
     private MyPairTypeSpawn myBufferTypeSpawn;
     private event System.Action<MyGameState> MyEventStateSystem;
+
+    public List<MyCell> MyGetCells { get { return myCells; } }
+    public MyCell[,] MyGetCells2D { get { return myCells2D; } }
 
     private IEnumerator Start()
     {
@@ -147,9 +150,11 @@ public class MyMain : MonoBehaviour
                 }
                 MyActiveCell[] cells = MySelectTheComboAndAddPower();
 
+                //MyActiveCell[] cellsPower = MyLookForPower(cells);//to do this
+
                 for (int ind = 0; ind < cells.Length; ind++)
                 {
-                    cells[ind].MyDestroyGem();
+                    cells[ind].MyDestroyGem(this);
                 }
 
                 yield return new WaitForSeconds(0.01f);

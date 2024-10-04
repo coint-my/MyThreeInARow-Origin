@@ -59,6 +59,7 @@
     <Compile Include="Assets\Resources\my_script\MyMain.cs" />
     <Compile Include="Assets\Resources\my_script\MyGem.cs" />
     <Compile Include="Assets\Resources\my_script\MyGemType.cs" />
+    <Compile Include="Assets\Resources\my_script\MyPowerGem.cs" />
     <Compile Include="Assets\Resources\my_script\MyCell.cs" />
     <Compile Include="Assets\Resources\my_script\MyActiveCell.cs" />
     <Compile Include="Assets\Resources\my_script\MyMisc.cs" />

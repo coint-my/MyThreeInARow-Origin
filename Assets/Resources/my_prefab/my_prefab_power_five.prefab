@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3904070847350920039}
   - component: {fileID: 1410215198875132557}
   - component: {fileID: 583906984}
+  - component: {fileID: 2568050689891951993}
   m_Layer: 0
   m_Name: my_prefab_power_five
   m_TagString: Untagged
@@ -95,3 +96,16 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &2568050689891951993
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7653941989610910909}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d5bc370665fc414eb5385716a21b1ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  myPower: 1
