@@ -88,3 +88,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 85bb1ad3d527a6742910088f11db6266, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  myIsTestBusy: 0
+  myIsMove: 0
+  MyIsNeedToMoveTransformParent: 0

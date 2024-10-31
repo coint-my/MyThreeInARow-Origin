@@ -9,6 +9,9 @@ public class MySpawnerGem : MonoBehaviour
 
     public bool MyIsHaveGem { get { return GetComponentInChildren<MyGem>(); } }
 
+    public MyGemType MyGetRandomType { get {
+            return myListTypeGems[Random.Range(0, myListTypeGems.Length - 1)]; } }
+
     private void Awake()
     {
         myListTypeGems = new MyGemType[6];
@@ -21,19 +24,6 @@ public class MySpawnerGem : MonoBehaviour
 
         myPrefabGem = Resources.Load<MyGem>("my_prefab/my_prefab_gem");
     }
-
-    //public void MySpawnGem(MyGemType _type)
-    //{
-    //    if (transform.childCount == 0)
-    //    {
-    //        MyGem gem = Instantiate(myPrefabGem);
-    //        MyGemType gemType = Instantiate(_type);
-    //        gemType.transform.SetParent(gem.transform, false);
-    //        gem.transform.SetParent(transform, false);
-    //    }
-    //    else
-    //        print("Error spawn gem");
-    //}
 
     public void MySpawnGem()
     {

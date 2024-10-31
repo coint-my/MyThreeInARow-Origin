@@ -21,9 +21,30 @@ public struct MyPairTypeSpawn
     public string typePrefab;
     public int quantity;
     public int index;
+    public int indexDynamite;
     public MyPowerDirection powerDirection;
 
     public void MyClear() { typePrefab = null; quantity = 0; index = -1; }
+}
+public struct MyBufferDestroyForPowerFive
+{
+    private List<MyActiveCell> myListActiveCell;
+
+    public List<MyActiveCell> myGetActiveCell { get { return myListActiveCell; } }
+
+    public void MySetArrayActiveCell(List<MyActiveCell> _arrActiveCell)
+    {
+        if (myListActiveCell == null)
+            myListActiveCell = new List<MyActiveCell>();
+
+        myListActiveCell = _arrActiveCell;
+    }
+
+    public void MyClearBuffer()
+    {
+        if (myListActiveCell != null)
+            myListActiveCell.Clear();
+    }
 }
 
 public class MyMain : MonoBehaviour
@@ -39,10 +60,12 @@ public class MyMain : MonoBehaviour
     private Coroutine myCoroutineGameState;
     private MyPairActiveCell myBufferPairActiveCell;
     private MyPairTypeSpawn myBufferTypeSpawn;
+    private MyBufferDestroyForPowerFive myBufferDestroyPowerCell = new MyBufferDestroyForPowerFive();
     private event System.Action<MyGameState> MyEventStateSystem;
 
     public List<MyCell> MyGetCells { get { return myCells; } }
     public MyCell[,] MyGetCells2D { get { return myCells2D; } }
+    public MyPairTypeSpawn myGetBufferTypeSpawn { get { return myBufferTypeSpawn; } }
 
     private IEnumerator Start()
     {
@@ -70,12 +93,28 @@ public class MyMain : MonoBehaviour
         MyActiveCell.MyEventMouseClickOnCell += MyEventMouseClickOnCell;
         MyGem.MyEventEndPlayAnimationCell += MyEventEndPlayAnimationCell;
         MyEventStateSystem += MyMainEventStateSystem;
+        myBufferTypeSpawn.indexDynamite = -1;
         MyEventStateSystem?.Invoke(MyGameState.MOVE);
     }
 
     private void MySpawnPower()
     {
-        if (myBufferTypeSpawn.quantity > 3)
+        if(myBufferTypeSpawn.indexDynamite >= 0)
+        {
+            MyActiveCell currentActiveCell = myCells[myBufferTypeSpawn.indexDynamite].MyGetActiveCell;
+            MyGem gem = Instantiate(Resources.Load<MyGem>("my_prefab/my_prefab_gem"));
+            
+            MyGemType gemType = Instantiate(Resources.Load<MyGemType>(myBufferTypeSpawn.typePrefab));
+            
+            if (currentActiveCell.transform.childCount == 0)
+            {
+                GameObject goPowerDynamite = Resources.Load<GameObject>("my_prefab/my_prefab_power_dynamite");
+                MySpawnGemPower(ref currentActiveCell, gem, gemType, goPowerDynamite);
+            }
+            else
+                print("error child.count = " + currentActiveCell.transform.childCount);
+        }
+        else if (myBufferTypeSpawn.quantity > 3)
         {
             MyActiveCell currentActiveCell = myCells[myBufferTypeSpawn.index].MyGetActiveCell;
             MyGem gem = Instantiate(Resources.Load<MyGem>("my_prefab/my_prefab_gem"));
@@ -104,9 +143,6 @@ public class MyMain : MonoBehaviour
     private void MySpawnGemPower(ref MyActiveCell _currentActiveCell, MyGem _gem, MyGemType _gemType,
         GameObject _prefabPower)
     {
-        print("tupe = " + myBufferTypeSpawn.typePrefab + " count = " + myBufferTypeSpawn.quantity + "\n" +
-           myBufferTypeSpawn.powerDirection);
-
         _gemType.transform.SetParent(_gem.transform, false);
         _gem.transform.SetParent(_currentActiveCell.transform, false);
         _gemType.myPathPrefab = myBufferTypeSpawn.typePrefab;
@@ -148,20 +184,20 @@ public class MyMain : MonoBehaviour
                         break;
                     }
                 }
-                MyActiveCell[] cells = MySelectTheComboAndAddPower();
+                List<MyActiveCell> cells = MySelectTheComboAndAddPower();
 
-                //MyActiveCell[] cellsPower = MyLookForPower(cells);//to do this
-
-                for (int ind = 0; ind < cells.Length; ind++)
-                {
-                    cells[ind].MyDestroyGem(this);
-                }
+                myBufferTypeSpawn.indexDynamite = MyIsGetIndexDynamiteInComboArray(cells);
+                if (myBufferTypeSpawn.indexDynamite >= 0)
+                    myBufferTypeSpawn.typePrefab = cells[0].MyGetGem.MyGetType.myPathPrefab;
+                
+                if (cells.Count > 0)
+                    MyDestroyGemsArray(cells.ToArray());
 
                 yield return new WaitForSeconds(0.01f);
 
                 //UnityEditor.EditorApplication.isPaused = true;
-                
-                if (cells.Length > 0)
+
+                if (cells.Count > 0)
                     MyEventStateSystem?.Invoke(MyGameState.MOVE);
                 else
                     MyEventStateSystem?.Invoke(MyGameState.HANDLE);
@@ -170,12 +206,40 @@ public class MyMain : MonoBehaviour
             case MyGameState.HANDLE:
                 myIsHandle = true;
                 break;
+            case MyGameState.WAIT:
+                myIsHandle = false;
+                yield return new WaitForSeconds(1);
+                myIsHandle = true;
+                MyDestroyGemsArray(myBufferDestroyPowerCell.myGetActiveCell.ToArray());
+                MyMainEventStateSystem(MyGameState.MOVE);
+                break;
             default:
                 break;
         }
     }
 
-    private MyActiveCell[] MySelectTheComboAndAddPower()
+    private void MyDestroyGemsArray(MyActiveCell[] _cells)
+    {
+        Stack<MyActiveCell> myActiveCellStack = new Stack<MyActiveCell>(_cells);
+        //print("start stack count = " + myActiveCellStack.Count);
+        for (int ind = 0; myActiveCellStack.Count > 0 && ind < myWidth * myHeight; ind++)
+        {
+            //print("stack pop and push count = " + myActiveCellStack.Count);
+            MyActiveCell activeCell = myActiveCellStack.Pop();
+            MyActiveCell[] arrActiveCell = activeCell.MyDestroyGem(this);
+
+            if (arrActiveCell != null && arrActiveCell.Length > 0)
+            {
+                //print("power activate arr count = " + arrActiveCell.Length);
+                for (int arrInd = 0; arrInd < arrActiveCell.Length; arrInd++)
+                {
+                    myActiveCellStack.Push(arrActiveCell[arrInd]);
+                }
+            }
+        }
+    }
+
+    private List<MyActiveCell> MySelectTheComboAndAddPower()
     {
         List<MyActiveCell> arrList = new List<MyActiveCell>();
         for (int ind = 0; ind < myWidth; ind++)
@@ -183,7 +247,12 @@ public class MyMain : MonoBehaviour
             arrList.AddRange(MyIsLookACombo(ind, ind));
         }
 
-        return arrList.ToArray();
+        for (int ind = 0; ind < arrList.Count; ind++)
+        {
+            arrList[ind].MyGetGem.myIsAddedListForDelete = true;
+        }
+
+        return arrList;
     }
 
     private bool MyIsBusySpawners()
@@ -470,6 +539,28 @@ public class MyMain : MonoBehaviour
         return comboList.ToArray();
     }
 
+    private int MyIsGetIndexDynamiteInComboArray(List<MyActiveCell> _arrCombo)
+    {
+        foreach (var main in _arrCombo)
+        {
+            int currId = main.MyGetId();
+            int count = 0;
+
+            foreach (var test in _arrCombo)
+            {
+                int nextId = test.MyGetId();
+
+                if (currId == nextId)
+                    count++;
+
+                if (count > 1)
+                    return currId;
+            }
+        }
+
+        return -1;
+    }
+
     private void MySetParentCellNewCell()
     {
         for (int ind = 0; ind < myActiveCells.Count; ind++)
@@ -670,7 +761,23 @@ public class MyMain : MonoBehaviour
 
     private void MyCellOnExchange(MyActiveCell _first, MyActiveCell _target)
     {
-        if (_target.MyGetGem && myIsHandle)
+        if(_target.MyGetGem && myIsHandle && 
+            _first.MyGetGem.GetComponentInChildren<MyPowerGem>() &&
+            _first.MyGetGem.GetComponentInChildren<MyPowerGem>().myPower == MyTypePower.FIVE)
+        {
+            List<MyActiveCell> cells = MyCollectAllTypeGems(_first, _target);
+            GameObject goPrefabLineDraw = Resources.Load<GameObject>("my_prefab/my_effect/myEffectLinesDraw");
+            GameObject goInstanceLineDraw = Instantiate(goPrefabLineDraw);
+            goInstanceLineDraw.transform.SetParent(_first.GetComponentInChildren<MyPowerGem>().transform);
+            MyDrawLines drawLines = goInstanceLineDraw.GetComponent<MyDrawLines>();
+            drawLines.MyInitialize(cells.ToArray());
+
+            myBufferDestroyPowerCell.MyClearBuffer();
+            myBufferDestroyPowerCell.MySetArrayActiveCell(cells);
+
+            MyMainEventStateSystem(MyGameState.WAIT);
+        }
+        else if (_target.MyGetGem && myIsHandle)
         {
             _first.MyGetGem.MyMoveToPointTheCell(_target);
             _target.MyGetGem.MyMoveToPointTheCell(_first);
@@ -678,6 +785,25 @@ public class MyMain : MonoBehaviour
             myIsOneCallCell = true;
             myIsHandle = false;
         }
+    }
+
+    private List<MyActiveCell> MyCollectAllTypeGems(MyActiveCell _first, MyActiveCell _targetCell)
+    {
+        List<MyActiveCell> listCells = new List<MyActiveCell>();
+
+        for (int ind = 0; ind < myActiveCells.Count; ind++)
+        {
+            if (myActiveCells[ind].MyGetGem &&
+                myActiveCells[ind].GetComponentInChildren<MyGemType>().myType ==
+                _targetCell.GetComponentInChildren<MyGemType>().myType)
+            {
+                listCells.Add(myActiveCells[ind]);
+            }
+        }
+
+        listCells.Add(_first);
+
+        return listCells;
     }
 
     private MyPairInt MyGetIndexCell(MyActiveCell _cell)

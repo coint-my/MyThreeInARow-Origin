@@ -50,3 +50,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mySpeedAnimate: 9
   myListPoints: []
+  myIsAddedListForDelete: 0
