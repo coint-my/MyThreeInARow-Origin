@@ -119,4 +119,4 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   myMaterialBombExplode: {fileID: 2100000, guid: 7e4e79f76e341ca488773cce6ea24b5b, type: 2}
-  mySpeed: 2.5
+  mySpeed: 2

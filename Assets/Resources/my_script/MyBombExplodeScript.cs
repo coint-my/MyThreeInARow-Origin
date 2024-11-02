@@ -8,7 +8,7 @@ public class MyBombExplodeScript : MonoBehaviour
 
     public Material myMaterialBombExplode;
 
-    [Range(0f, 5f)]
+    [Range(0f, 2.5f)]
     public float mySpeed;
 
     public void MyStartAnimation(float _timeUpdate)
@@ -26,7 +26,7 @@ public class MyBombExplodeScript : MonoBehaviour
             
             myMaterialBombExplode.SetFloat("_directionFloat", progress);
 
-            print("pregress = " + progress);
+            //print("pregress = " + progress);
             yield return new WaitForSeconds(_timeUpdate);
         }
     }
