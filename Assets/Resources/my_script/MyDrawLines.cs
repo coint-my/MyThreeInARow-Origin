@@ -10,11 +10,15 @@ public class MyDrawLines : MonoBehaviour
 
     public Material myMaterialLine;
 
+    public AudioClip myAudioClip;
+
     public void MyInitialize(MyActiveCell[] _arrTarget)
     {
         int count = _arrTarget.Length;
         int index = 0;
         myLineAnimation = -1;
+
+        MyPlaySound.MyPlayClip(myAudioClip);
 
         if (myCoroutineAnimation == null)
             myCoroutineAnimation = StartCoroutine(MyCoroutineStartEffectLine(0.05f));

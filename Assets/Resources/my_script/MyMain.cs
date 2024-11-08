@@ -49,6 +49,11 @@ public struct MyBufferDestroyForPowerFive
 
 public class MyMain : MonoBehaviour
 {
+    public AudioClip myAudioClipWrong;
+    public AudioClip myAudioClipVerticalOrHorizontalPower;
+    public AudioClip myAudioClipCollectPower;
+    public AudioClip myAudioClipDestroyCell;
+
     public readonly int myWidth = 10, myHeight = 10;
     private bool myIsHandle = false;
     private bool myIsOneCallCell = false;
@@ -152,6 +157,8 @@ public class MyMain : MonoBehaviour
         goPower.transform.SetParent(_gemType.transform, false);
 
         myBufferTypeSpawn.MyClear();
+
+        MyPlaySound.MyPlayClip(myAudioClipCollectPower);
     }
 
     private void MyMainEventStateSystem(MyGameState _state)
@@ -189,9 +196,12 @@ public class MyMain : MonoBehaviour
                 myBufferTypeSpawn.indexDynamite = MyIsGetIndexDynamiteInComboArray(cells);
                 if (myBufferTypeSpawn.indexDynamite >= 0)
                     myBufferTypeSpawn.typePrefab = cells[0].MyGetGem.MyGetType.myPathPrefab;
-                
+
                 if (cells.Count > 0)
+                {
+                    MyPlaySound.MyPlayClip(myAudioClipDestroyCell);
                     MyDestroyGemsArray(cells.ToArray());
+                }
 
                 yield return new WaitForSeconds(0.01f);
 
@@ -226,10 +236,14 @@ public class MyMain : MonoBehaviour
         {
             //print("stack pop and push count = " + myActiveCellStack.Count);
             MyActiveCell activeCell = myActiveCellStack.Pop();
+
             MyActiveCell[] arrActiveCell = activeCell.MyDestroyGem(this);
 
             if (arrActiveCell != null && arrActiveCell.Length > 0)
             {
+                if (activeCell.GetComponentInChildren<MyPowerGem>().myPower == MyTypePower.FOUR_HORIZONTAL ||
+                    activeCell.GetComponentInChildren<MyPowerGem>().myPower == MyTypePower.FOUR_VERTICAL)
+                    MyPlaySound.MyPlayClip(myAudioClipVerticalOrHorizontalPower);
                 //print("power activate arr count = " + arrActiveCell.Length);
                 for (int arrInd = 0; arrInd < arrActiveCell.Length; arrInd++)
                 {
@@ -892,6 +906,7 @@ public class MyMain : MonoBehaviour
                 myBufferPairActiveCell.second.MyGetGem.MyMoveToPointTheCell(myBufferPairActiveCell.first);
                 myBufferPairActiveCell.first.MyGetGem.MyMoveToPointTheCell(myBufferPairActiveCell.second);
                 myIsHandle = true;
+                MyPlaySound.MyPlayClip(myAudioClipWrong);
             }
             else
             {

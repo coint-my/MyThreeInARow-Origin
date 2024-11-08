@@ -114,7 +114,7 @@ Material:
     - _Surface: 0
     - _WorkflowMode: 1
     - _ZWrite: 1
-    - _directionFloat: 0.50091463
+    - _directionFloat: 0.5345158
     m_Colors:
     - Color_7a35f1f702934ff8ad4d74472fc1c348: {r: 0.6415094, g: 0.099857606, b: 0.099857606, a: 0}
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}

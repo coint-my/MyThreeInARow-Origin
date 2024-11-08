@@ -44,3 +44,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   myMaterialLine: {fileID: 2100000, guid: cb62eaf87009da54f960ae8a8aa75f7c, type: 2}
+  myAudioClip: {fileID: 8300000, guid: 98145b9757d71c448a99111a8e89e8f5, type: 3}
