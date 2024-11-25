@@ -89,4 +89,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   myType: 0
-  myPathPrefab: 
+  myPathPrefab: my_prefab/my_prefab_romb

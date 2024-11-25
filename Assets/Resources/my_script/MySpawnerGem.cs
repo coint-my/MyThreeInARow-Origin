@@ -9,9 +9,6 @@ public class MySpawnerGem : MonoBehaviour
 
     public bool MyIsHaveGem { get { return GetComponentInChildren<MyGem>(); } }
 
-    public MyGemType MyGetRandomType { get {
-            return myListTypeGems[Random.Range(0, myListTypeGems.Length - 1)]; } }
-
     private void Awake()
     {
         myListTypeGems = new MyGemType[6];
@@ -32,9 +29,9 @@ public class MySpawnerGem : MonoBehaviour
             MyGem gem = Instantiate(myPrefabGem);
             MyGemType typeGem = myListTypeGems[Random.Range(0, myListTypeGems.Length - 1)];
             MyGemType objGemType = Instantiate(typeGem);//17
-            string strCutStart = UnityEditor.AssetDatabase.GetAssetPath(typeGem).Substring(17);
-            string strCutEnd = strCutStart.Remove((strCutStart.Length) - 7);
-            objGemType.myPathPrefab = strCutEnd;
+            //string strCutStart = UnityEditor.AssetDatabase.GetAssetPath(typeGem).Substring(17);
+            //string strCutEnd = strCutStart.Remove((strCutStart.Length) - 7);
+            //objGemType.myPathPrefab = strCutEnd;
             objGemType.transform.SetParent(gem.transform, false);
             gem.transform.SetParent(transform, false);
         }

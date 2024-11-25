@@ -231,10 +231,9 @@ public class MyMain : MonoBehaviour
     private void MyDestroyGemsArray(MyActiveCell[] _cells)
     {
         Stack<MyActiveCell> myActiveCellStack = new Stack<MyActiveCell>(_cells);
-        //print("start stack count = " + myActiveCellStack.Count);
+        
         for (int ind = 0; myActiveCellStack.Count > 0 && ind < myWidth * myHeight; ind++)
         {
-            //print("stack pop and push count = " + myActiveCellStack.Count);
             MyActiveCell activeCell = myActiveCellStack.Pop();
 
             MyActiveCell[] arrActiveCell = activeCell.MyDestroyGem(this);
@@ -244,7 +243,7 @@ public class MyMain : MonoBehaviour
                 if (activeCell.GetComponentInChildren<MyPowerGem>().myPower == MyTypePower.FOUR_HORIZONTAL ||
                     activeCell.GetComponentInChildren<MyPowerGem>().myPower == MyTypePower.FOUR_VERTICAL)
                     MyPlaySound.MyPlayClip(myAudioClipVerticalOrHorizontalPower);
-                //print("power activate arr count = " + arrActiveCell.Length);
+
                 for (int arrInd = 0; arrInd < arrActiveCell.Length; arrInd++)
                 {
                     myActiveCellStack.Push(arrActiveCell[arrInd]);
